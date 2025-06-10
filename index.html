@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陈粒粒的陷阱</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF4B91',
+                        secondary: '#9C6ADE',
+                        accent: '#FFD166',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .animate-float {
+                animation: float 3s ease-in-out infinite;
+            }
+            .animate-pulse-slow {
+                animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            .animate-shake {
+                animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        @keyframes shake {
+            10%, 90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+            
+            20%, 80% {
+                transform: translate3d(2px, 0, 0);
+            }
+        
+            30%, 50%, 70% {
+                transform: translate3d(-4px, 0, 0);
+            }
+        
+            40%, 60% {
+                transform: translate3d(4px, 0, 0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-100 to-purple-100 min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden">
+    <!-- 装饰元素 -->
+    <div class="absolute -top-20 -left-20 w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-32 -right-20 w-64 h-64 bg-secondary/20 rounded-full blur-3xl"></div>
+    
+    <!-- 主容器 -->
+    <div class="relative z-10 bg-white/80 backdrop-blur-md rounded-2xl shadow-xl max-w-md w-full p-8 border border-white/30">
+        <!-- 标题 -->
+        <div class="text-center mb-8">
+            <h1 class="text-[clamp(1.8rem,5vw,2.5rem)] font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary mb-2 animate-pulse-slow">陈粒粒的陷阱</h1>
+            <p class="text-gray-600 text-lg">点击正确答案解锁惊喜</p>
+        </div>
+        
+        <!-- 问题卡片 -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8 border border-primary/20 transform transition-all duration-500 hover:shadow-primary/20 hover:shadow-xl">
+            <div class="flex items-center justify-center mb-6">
+                <i class="fa fa-heart text-primary text-5xl animate-float"></i>
+            </div>
+            <p class="text-center text-[clamp(1.2rem,3vw,1.5rem)] font-medium text-gray-800 mb-6">孔小松在干嘛呀</p>
+            
+            <!-- 按钮区域 -->
+            <div class="grid grid-cols-1 gap-4">
+                <button id="yesBtn" class="bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 flex items-center justify-center">
+                    <i class="fa fa-check-circle mr-2"></i> 想你
+                </button>
+                
+                <button id="noBtn" class="bg-gray-100 text-gray-700 font-bold py-4 px-6 rounded-full shadow-md transform transition-all duration-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 flex items-center justify-center">
+                    <i class="fa fa-times-circle mr-2"></i> 你别管
+                </button>
+            </div>
+        </div>
+        
+        <!-- 底部装饰 -->
+        <div class="flex justify-center">
+            <div class="flex space-x-1">
+                <div class="w-2 h-2 rounded-full bg-primary"></div>
+                <div class="w-2 h-2 rounded-full bg-secondary"></div>
+                <div class="w-2 h-2 rounded-full bg-accent"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 成功弹窗 -->
+    <div id="successModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center transform transition-all duration-500 scale-95 opacity-0" id="modalContent">
+            <div class="mb-4">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-500 mb-4">
+                    <i class="fa fa-heart text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">呕吼！</h2>
+                <p class="text-gray-600 mb-6">我就知道~</p>
+            </div>
+            <button id="closeModal" class="bg-gradient-to-r from-primary to-secondary text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 focus:outline-none">
+                确认 <i class="fa fa-arrow-right ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 阻止返回弹窗 -->
+    <div id="blockBackModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-40 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
+            <div class="mb-4">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 text-red-500 mb-4">
+                    <i class="fa fa-lock text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">不可以离开哦</h2>
+                <p class="text-gray-600 mb-6">你的回答我不满意 请继续作答~</p>
+            </div>
+            <button id="closeBlockModal" class="bg-gradient-to-r from-primary to-secondary text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 focus:outline-none">
+                继续思考 <i class="fa fa-heart ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 慎重选择弹窗 -->
+    <div id="carefulModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center transform transition-all duration-500 scale-95 opacity-0" id="carefulModalContent">
+            <div class="mb-4">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-yellow-100 text-yellow-500 mb-4">
+                    <i class="fa fa-exclamation-triangle text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">请慎重选择</h2>
+                <p class="text-gray-600 mb-6">小心我一拳过去~</p>
+            </div>
+            <button id="closeCarefulModal" class="bg-gradient-to-r from-primary to-secondary text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 focus:outline-none">
+                好的 <i class="fa fa-heart ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 重新思考弹窗 -->
+    <div id="rethinkModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center transform transition-all duration-500 scale-95 opacity-0" id="rethinkModalContent">
+            <div class="mb-4">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 text-red-500 mb-4">
+                    <i class="fa fa-refresh text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">请重新思考</h2>
+                <p class="text-gray-600 mb-6">再给你一次机会，好好回答~</p>
+            </div>
+            <button id="closeRethinkModal" class="bg-gradient-to-r from-primary to-secondary text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 focus:outline-none">
+                我明白了 <i class="fa fa-heart ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 不满意弹窗 -->
+    <div id="unsatisfiedModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center transform transition-all duration-500 scale-95 opacity-0" id="unsatisfiedModalContent">
+            <div class="mb-4">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 text-red-500 mb-4">
+                    <i class="fa fa-frown-o text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">你的回答我不满意</h2>
+                <p class="text-gray-600 mb-6">请珍惜最后一次机会~</p>
+            </div>
+            <button id="closeUnsatisfiedModal" class="bg-gradient-to-r from-primary to-secondary text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 focus:outline-none">
+                好的 <i class="fa fa-heart ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 图片弹窗 -->
+    <div id="imageModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
+            <!-- 替换为你的网络图片链接 -->
+            <img src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2F903f779c-1a80-4064-a29b-d356e7b5629b%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1752074372&t=fdeedade5431156e7419502f53cfbaf9" alt="笔芯" class="w-full h-auto"> 
+            <button id="closeImageModal" class="bg-gradient-to-r from-primary to-secondary text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 focus:outline-none mt-4">
+                关闭 <i class="fa fa-times ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const noBtn = document.getElementById('noBtn');
+            const yesBtn = document.getElementById('yesBtn');
+            const successModal = document.getElementById('successModal');
+            const modalContent = document.getElementById('modalContent');
+            const closeModal = document.getElementById('closeModal');
+            const blockBackModal = document.getElementById('blockBackModal');
+            const closeBlockModal = document.getElementById('closeBlockModal');
+            const carefulModal = document.getElementById('carefulModal');
+            const carefulModalContent = document.getElementById('carefulModalContent');
+            const closeCarefulModal = document.getElementById('closeCarefulModal');
+            const rethinkModal = document.getElementById('rethinkModal');
+            const rethinkModalContent = document.getElementById('rethinkModalContent');
+            const closeRethinkModal = document.getElementById('closeRethinkModal');
+            const unsatisfiedModal = document.getElementById('unsatisfiedModal');
+            const unsatisfiedModalContent = document.getElementById('unsatisfiedModalContent');
+            const closeUnsatisfiedModal = document.getElementById('unsatisfiedModalContent');
+            const imageModal = document.getElementById('imageModal');
+            const closeImageModal = document.getElementById('closeImageModal');
+            
+            let noClicks = 0; // 记录点击"你别管"的次数
+            
+            // 点击"你别管"按钮
+            noBtn.addEventListener('click', function() {
+                noClicks++;
+                noBtn.classList.add('animate-shake');
+                
+                setTimeout(() => {
+                    noBtn.classList.remove('animate-shake');
+                }, 500);
+                
+                // 根据点击次数显示不同的弹窗
+                if (noClicks === 1) {
+                    // 第一次点击：显示慎重选择弹窗
+                    carefulModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        carefulModalContent.classList.remove('scale-95', 'opacity-0');
+                        carefulModalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
+                } else if (noClicks === 2) {
+                    // 第二次点击：显示重新思考弹窗
+                    rethinkModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        rethinkModalContent.classList.remove('scale-95', 'opacity-0');
+                        rethinkModalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
+                } else if (noClicks === 3) {
+                    // 第三次点击：显示不满意弹窗
+                    unsatisfiedModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        unsatisfiedModalContent.classList.remove('scale-95', 'opacity-0');
+                        unsatisfiedModalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
+                    
+                    // 禁用"你别管"按钮
+                    noBtn.disabled = true;
+                    noBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            });
+            
+            // 关闭慎重选择弹窗
+            closeCarefulModal.addEventListener('click', function() {
+                carefulModalContent.classList.remove('scale-100', 'opacity-100');
+                carefulModalContent.classList.add('scale-95', 'opacity-0');
+                
+                setTimeout(() => {
+                    carefulModal.classList.add('hidden');
+                }, 300);
+            });
+            
+            // 关闭重新思考弹窗
+            closeRethinkModal.addEventListener('click', function() {
+                rethinkModalContent.classList.remove('scale-100', 'opacity-100');
+                rethinkModalContent.classList.add('scale-95', 'opacity-0');
+                
+                setTimeout(() => {
+                    rethinkModal.classList.add('hidden');
+                }, 300);
+            });
+            
+            // 关闭不满意弹窗
+            closeUnsatisfiedModal.addEventListener('click', function() {
+                unsatisfiedModalContent.classList.remove('scale-100', 'opacity-100');
+                unsatisfiedModalContent.classList.add('scale-95', 'opacity-0');
+                
+                setTimeout(() => {
+                    unsatisfiedModal.classList.add('hidden');
+                }, 300);
+            });
+            
+            // 阻止页面关闭或刷新
+            window.addEventListener('beforeunload', function(e) {
+                e.preventDefault();
+                e.returnValue = '';
+                blockBackModal.classList.remove('hidden');
+                return '';
+            });
+            
+            // 阻止微信内置浏览器返回
+            function blockWechatBack() {
+                history.pushState(null, null, location.href);
+                window.addEventListener('popstate', function() {
+                    history.pushState(null, null, location.href);
+                    blockBackModal.classList.remove('hidden');
+                });
+            }
+            
+            // 检查是否在微信浏览器中
+            function isWechatBrowser() {
+                const ua = navigator.userAgent.toLowerCase();
+                return ua.indexOf('micromessenger') !== -1;
+            }
+            
+            // 如果在微信浏览器中，阻止返回
+            if (isWechatBrowser()) {
+                blockWechatBack();
+            }
+            
+            // 点击"想你"按钮
+            yesBtn.addEventListener('click', function() {
+                // 显示成功弹窗
+                successModal.classList.remove('hidden');
+                setTimeout(() => {
+                    modalContent.classList.remove('scale-95', 'opacity-0');
+                    modalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+                
+                // 允许页面关闭
+                window.removeEventListener('beforeunload', function() {});
+            });
+            
+            // 关闭成功弹窗
+            closeModal.addEventListener('click', function() {
+                // 隐藏成功弹窗
+                modalContent.classList.remove('scale-100', 'opacity-100');
+                modalContent.classList.add('scale-95', 'opacity-0');
+                
+                setTimeout(() => {
+                    successModal.classList.add('hidden');
+                    // 显示图片弹窗
+                    imageModal.classList.remove('hidden');
+                }, 300);
+            });
+            
+            // 关闭图片弹窗
+            closeImageModal.addEventListener('click', function() {
+                imageModal.classList.add('hidden');
+            });
+            
+            // 关闭阻止返回弹窗
+            closeBlockModal.addEventListener('click', function() {
+                blockBackModal.classList.add('hidden');
+            });
+        });
+    </script>
+</body>
+</html>
