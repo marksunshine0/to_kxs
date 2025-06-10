@@ -245,6 +245,28 @@
         </div>
     </div>
 
+    <!-- 新的图片弹窗，用于点击“你别管”四次 -->
+    <div id="newImageModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center transform transition-all duration-500 scale-95 opacity-0" id="newImageModalContent">
+            <!-- 替换为新的网络图片链接 -->
+            <img src="https://p2.itc.cn/images01/20201218/71b4009e8587458097f69e3d7d815fe1.jpeg" alt="一拳给你打飞" class="w-full h-auto rounded-lg shadow-lg"> 
+            <button id="closeNewImageModal" class="bg-gradient-to-r from-primary to-secondary text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 focus:outline-none mt-4">
+                关闭 <i class="fa fa-times ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 新的图片弹窗2，用于点击“你别管”五次 -->
+    <div id="newImageModal2" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center transform transition-all duration-500 scale-95 opacity-0" id="newImageModalContent2">
+            <!-- 替换为另一个新的网络图片链接 -->
+            <img src="https://miaobi-lite.bj.bcebos.com/miaobi/5mao/b%275LiA56eN6K%2B05LiN5Ye655qE5b%2BD5oOF5Zu%2B54mHIOaLkue7neaUueWGmV8xNzM1MzM1MjU4LjQ3ODIwNF8xNzM1MzM1MjU4LjkzODM0MV8xNzM1MzM1MjU5LjQzNDA4MjVfMTczNTMzNTI1OS44NjIyNjY4%27/3.png" alt="没机会啦！" class="w-full h-auto rounded-lg shadow-lg"> 
+            <button id="closeNewImageModal2" class="bg-gradient-to-r from-primary to-secondary text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 focus:outline-none mt-4">
+                关闭 <i class="fa fa-times ml-1"></i>
+            </button>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const noBtn = document.getElementById('noBtn');
@@ -275,6 +297,12 @@
             const thirdClickModal = document.getElementById('thirdClickModal');
             const thirdClickModalContent = document.getElementById('thirdClickModalContent');
             const closeThirdClickModal = document.getElementById('closeThirdClickModal');
+            const newImageModal = document.getElementById('newImageModal');
+            const newImageModalContent = document.getElementById('newImageModalContent');
+            const closeNewImageModal = document.getElementById('closeNewImageModal');
+            const newImageModal2 = document.getElementById('newImageModal2');
+            const newImageModalContent2 = document.getElementById('newImageModalContent2');
+            const closeNewImageModal2 = document.getElementById('closeNewImageModal2');
             
             let noClicks = 0; // 记录点击"你别管"的次数
             let yesClicks = 0; // 记录点击"想你"的次数
@@ -282,6 +310,9 @@
             
             // 点击"你别管"按钮
             noBtn.addEventListener('click', function() {
+                if (noClicks >= 6) {
+                    return; // 第六次及以后禁止点击
+                }
                 noClicks++;
                 noBtn.classList.add('animate-shake');
                 
@@ -311,10 +342,20 @@
                         unsatisfiedModalContent.classList.remove('scale-95', 'opacity-0');
                         unsatisfiedModalContent.classList.add('scale-100', 'opacity-100');
                     }, 10);
-                    
-                    // 禁用"你别管"按钮
-                    noBtn.disabled = true;
-                    noBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                } else if (noClicks === 4) {
+                    // 第四次点击：显示新的图片弹窗
+                    newImageModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        newImageModalContent.classList.remove('scale-95', 'opacity-0');
+                        newImageModalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
+                } else if (noClicks === 5) {
+                    // 第五次点击：显示另一个新的图片弹窗
+                    newImageModal2.classList.remove('hidden');
+                    setTimeout(() => {
+                        newImageModalContent2.classList.remove('scale-95', 'opacity-0');
+                        newImageModalContent2.classList.add('scale-100', 'opacity-100');
+                    }, 10);
                 }
             });
             
@@ -482,6 +523,26 @@
                 
                 setTimeout(() => {
                     thirdClickModal.classList.add('hidden');
+                }, 300);
+            });
+
+            // 关闭新的图片弹窗
+            closeNewImageModal.addEventListener('click', function() {
+                newImageModalContent.classList.remove('scale-100', 'opacity-100');
+                newImageModalContent.classList.add('scale-95', 'opacity-0');
+                
+                setTimeout(() => {
+                    newImageModal.classList.add('hidden');
+                }, 300);
+            });
+
+            // 关闭新的图片弹窗2
+            closeNewImageModal2.addEventListener('click', function() {
+                newImageModalContent2.classList.remove('scale-100', 'opacity-100');
+                newImageModalContent2.classList.add('scale-95', 'opacity-0');
+                
+                setTimeout(() => {
+                    newImageModal2.classList.add('hidden');
                 }, 300);
             });
         });
