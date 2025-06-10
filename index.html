@@ -308,11 +308,39 @@
             let yesClicks = 0; // 记录点击"想你"的次数
             let showHeartModal = false; // 控制比心弹窗和图片弹窗的交替显示
             
-            // 点击"你别管"按钮
-            noBtn.addEventListener('click', function() {
+            // 检测设备类型
+            function isMobileDevice() {
+                return (typeof window.orientation !== 'undefined') || 
+                       (navigator.userAgent.indexOf('IEMobile') !== -1);
+            }
+            
+            // 根据设备类型添加不同的点击事件
+            if (isMobileDevice()) {
+                // 移动端使用 touchstart 事件
+                noBtn.addEventListener('touchstart', handleNoBtnClick);
+                yesBtn.addEventListener('touchstart', handleYesBtnClick);
+            } else {
+                // 桌面端使用 click 事件
+                noBtn.addEventListener('click', handleNoBtnClick);
+                yesBtn.addEventListener('click', handleYesBtnClick);
+            }
+            
+            // 阻止移动端点击穿透
+            function preventClickThrough(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            // 处理"你别管"按钮点击
+            function handleNoBtnClick(e) {
+                // 阻止默认行为和冒泡，防止触发多次
+                e.preventDefault();
+                e.stopPropagation();
+                
                 if (noClicks >= 6) {
                     return; // 第六次及以后禁止点击
                 }
+                
                 noClicks++;
                 noBtn.classList.add('animate-shake');
                 
@@ -357,7 +385,68 @@
                         newImageModalContent2.classList.add('scale-100', 'opacity-100');
                     }, 10);
                 }
-            });
+                
+                // 防止后续事件触发
+                if (isMobileDevice()) {
+                    noBtn.addEventListener('click', preventClickThrough, { once: true });
+                }
+            }
+            
+            // 处理"想你"按钮点击
+            function handleYesBtnClick(e) {
+                // 阻止默认行为和冒泡，防止触发多次
+                e.preventDefault();
+                e.stopPropagation();
+                
+                yesClicks++;
+                if (yesClicks === 1) {
+                    // 第一次点击：显示成功弹窗
+                    successModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        modalContent.classList.remove('scale-95', 'opacity-0');
+                        modalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
+                    
+                    // 允许页面关闭
+                    window.removeEventListener('beforeunload', function() {});
+                } else if (yesClicks === 2) {
+                    // 第二次点击：显示第二次点击提示弹窗
+                    secondClickModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        secondClickModalContent.classList.remove('scale-95', 'opacity-0');
+                        secondClickModalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
+                } else if (yesClicks === 3) {
+                    // 第三次点击：显示第三次点击提示弹窗
+                    thirdClickModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        thirdClickModalContent.classList.remove('scale-95', 'opacity-0');
+                        thirdClickModalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
+                } else {
+                    // 第四次及以后点击：交替显示比心弹窗和图片弹窗
+                    showHeartModal = !showHeartModal;
+                    
+                    if (showHeartModal) {
+                        heartModal.classList.remove('hidden');
+                        setTimeout(() => {
+                            heartModalContent.classList.remove('scale-95', 'opacity-0');
+                            heartModalContent.classList.add('scale-100', 'opacity-100');
+                        }, 10);
+                    } else {
+                        imageModal.classList.remove('hidden');
+                        setTimeout(() => {
+                            imageModalContent.classList.remove('scale-95', 'opacity-0');
+                            imageModalContent.classList.add('scale-100', 'opacity-100');
+                        }, 10);
+                    }
+                }
+                
+                // 防止后续事件触发
+                if (isMobileDevice()) {
+                    yesBtn.addEventListener('click', preventClickThrough, { once: true });
+                }
+            }
             
             // 关闭慎重选择弹窗
             closeCarefulModal.addEventListener('click', function() {
@@ -416,53 +505,6 @@
             if (isWechatBrowser()) {
                 blockWechatBack();
             }
-            
-            // 点击"想你"按钮
-            yesBtn.addEventListener('click', function() {
-                yesClicks++;
-                if (yesClicks === 1) {
-                    // 第一次点击：显示成功弹窗
-                    successModal.classList.remove('hidden');
-                    setTimeout(() => {
-                        modalContent.classList.remove('scale-95', 'opacity-0');
-                        modalContent.classList.add('scale-100', 'opacity-100');
-                    }, 10);
-                    
-                    // 允许页面关闭
-                    window.removeEventListener('beforeunload', function() {});
-                } else if (yesClicks === 2) {
-                    // 第二次点击：显示第二次点击提示弹窗
-                    secondClickModal.classList.remove('hidden');
-                    setTimeout(() => {
-                        secondClickModalContent.classList.remove('scale-95', 'opacity-0');
-                        secondClickModalContent.classList.add('scale-100', 'opacity-100');
-                    }, 10);
-                } else if (yesClicks === 3) {
-                    // 第三次点击：显示第三次点击提示弹窗
-                    thirdClickModal.classList.remove('hidden');
-                    setTimeout(() => {
-                        thirdClickModalContent.classList.remove('scale-95', 'opacity-0');
-                        thirdClickModalContent.classList.add('scale-100', 'opacity-100');
-                    }, 10);
-                } else {
-                    // 第四次及以后点击：交替显示比心弹窗和图片弹窗
-                    showHeartModal = !showHeartModal;
-                    
-                    if (showHeartModal) {
-                        heartModal.classList.remove('hidden');
-                        setTimeout(() => {
-                            heartModalContent.classList.remove('scale-95', 'opacity-0');
-                            heartModalContent.classList.add('scale-100', 'opacity-100');
-                        }, 10);
-                    } else {
-                        imageModal.classList.remove('hidden');
-                        setTimeout(() => {
-                            imageModalContent.classList.remove('scale-95', 'opacity-0');
-                            imageModalContent.classList.add('scale-100', 'opacity-100');
-                        }, 10);
-                    }
-                }
-            });
             
             // 关闭成功弹窗
             closeModal.addEventListener('click', function() {
