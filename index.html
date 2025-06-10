@@ -199,6 +199,36 @@
         </div>
     </div>
 
+    <!-- 新增第二次点击提示弹窗 -->
+    <div id="secondClickModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center transform transition-all duration-500 scale-95 opacity-0" id="secondClickModalContent">
+            <div class="mb-4">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-yellow-100 text-yellow-500 mb-4">
+                    <i class="fa fa-smile-o text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">哎呦 又想了一次噢</h2>
+            </div>
+            <button id="closeSecondClickModal" class="bg-gradient-to-r from-primary to-secondary text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 focus:outline-none">
+                知道啦 <i class="fa fa-heart ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 新增第三次点击提示弹窗 -->
+    <div id="thirdClickModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center transform transition-all duration-500 scale-95 opacity-0" id="thirdClickModalContent">
+            <div class="mb-4">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-yellow-100 text-yellow-500 mb-4">
+                    <i class="fa fa-smile-o text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">好的好的知道啦</h2>
+            </div>
+            <button id="closeThirdClickModal" class="bg-gradient-to-r from-primary to-secondary text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 focus:outline-none">
+                好哒 <i class="fa fa-heart ml-1"></i>
+            </button>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const noBtn = document.getElementById('noBtn');
@@ -216,11 +246,18 @@
             const closeRethinkModal = document.getElementById('closeRethinkModal');
             const unsatisfiedModal = document.getElementById('unsatisfiedModal');
             const unsatisfiedModalContent = document.getElementById('unsatisfiedModalContent');
-            const closeUnsatisfiedModal = document.getElementById('unsatisfiedModalContent');
+            const closeUnsatisfiedModal = document.getElementById('closeUnsatisfiedModal');
             const imageModal = document.getElementById('imageModal');
             const closeImageModal = document.getElementById('closeImageModal');
+            const secondClickModal = document.getElementById('secondClickModal');
+            const secondClickModalContent = document.getElementById('secondClickModalContent');
+            const closeSecondClickModal = document.getElementById('closeSecondClickModal');
+            const thirdClickModal = document.getElementById('thirdClickModal');
+            const thirdClickModalContent = document.getElementById('thirdClickModalContent');
+            const closeThirdClickModal = document.getElementById('closeThirdClickModal');
             
             let noClicks = 0; // 记录点击"你别管"的次数
+            let yesClicks = 0; // 记录点击"想你"的次数
             
             // 点击"你别管"按钮
             noBtn.addEventListener('click', function() {
@@ -320,15 +357,32 @@
             
             // 点击"想你"按钮
             yesBtn.addEventListener('click', function() {
-                // 显示成功弹窗
-                successModal.classList.remove('hidden');
-                setTimeout(() => {
-                    modalContent.classList.remove('scale-95', 'opacity-0');
-                    modalContent.classList.add('scale-100', 'opacity-100');
-                }, 10);
-                
-                // 允许页面关闭
-                window.removeEventListener('beforeunload', function() {});
+                yesClicks++;
+                if (yesClicks === 1) {
+                    // 第一次点击：显示成功弹窗
+                    successModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        modalContent.classList.remove('scale-95', 'opacity-0');
+                        modalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
+                    
+                    // 允许页面关闭
+                    window.removeEventListener('beforeunload', function() {});
+                } else if (yesClicks === 2) {
+                    // 第二次点击：显示第二次点击提示弹窗
+                    secondClickModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        secondClickModalContent.classList.remove('scale-95', 'opacity-0');
+                        secondClickModalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
+                } else if (yesClicks === 3) {
+                    // 第三次点击：显示第三次点击提示弹窗
+                    thirdClickModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        thirdClickModalContent.classList.remove('scale-95', 'opacity-0');
+                        thirdClickModalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
+                }
             });
             
             // 关闭成功弹窗
@@ -352,6 +406,26 @@
             // 关闭阻止返回弹窗
             closeBlockModal.addEventListener('click', function() {
                 blockBackModal.classList.add('hidden');
+            });
+
+            // 关闭第二次点击提示弹窗
+            closeSecondClickModal.addEventListener('click', function() {
+                secondClickModalContent.classList.remove('scale-100', 'opacity-100');
+                secondClickModalContent.classList.add('scale-95', 'opacity-0');
+                
+                setTimeout(() => {
+                    secondClickModal.classList.add('hidden');
+                }, 300);
+            });
+
+            // 关闭第三次点击提示弹窗
+            closeThirdClickModal.addEventListener('click', function() {
+                thirdClickModalContent.classList.remove('scale-100', 'opacity-100');
+                thirdClickModalContent.classList.add('scale-95', 'opacity-0');
+                
+                setTimeout(() => {
+                    thirdClickModal.classList.add('hidden');
+                }, 300);
             });
         });
     </script>
