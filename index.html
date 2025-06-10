@@ -190,16 +190,32 @@
 
     <!-- 图片弹窗 -->
     <div id="imageModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center transform transition-all duration-500 scale-95 opacity-0" id="imageModalContent">
             <!-- 替换为你的网络图片链接 -->
-            <img src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2F903f779c-1a80-4064-a29b-d356e7b5629b%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1752074372&t=fdeedade5431156e7419502f53cfbaf9" alt="笔芯" class="w-full h-auto"> 
+            <img src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2F903f779c-1a80-4064-a29b-d356e7b5629b%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1752074372&t=fdeedade5431156e7419502f53cfbaf9" alt="笔芯" class="w-full h-auto rounded-lg shadow-lg"> 
             <button id="closeImageModal" class="bg-gradient-to-r from-primary to-secondary text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 focus:outline-none mt-4">
                 关闭 <i class="fa fa-times ml-1"></i>
             </button>
         </div>
     </div>
 
-    <!-- 新增第二次点击提示弹窗 -->
+    <!-- 比心弹窗 -->
+    <div id="heartModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center transform transition-all duration-500 scale-95 opacity-0" id="heartModalContent">
+            <div class="mb-4">
+                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 text-primary mb-4">
+                    <i class="fa fa-heart text-4xl animate-pulse-slow"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">哈哈哈傻子</h2>
+                <p class="text-gray-600 mb-6">❥(^_-)</p>
+            </div>
+            <button id="closeHeartModal" class="bg-gradient-to-r from-primary to-secondary text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 focus:outline-none">
+                关闭 <i class="fa fa-times ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 第二次点击提示弹窗 -->
     <div id="secondClickModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center transform transition-all duration-500 scale-95 opacity-0" id="secondClickModalContent">
             <div class="mb-4">
@@ -214,7 +230,7 @@
         </div>
     </div>
 
-    <!-- 新增第三次点击提示弹窗 -->
+    <!-- 第三次点击提示弹窗 -->
     <div id="thirdClickModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center transform transition-all duration-500 scale-95 opacity-0" id="thirdClickModalContent">
             <div class="mb-4">
@@ -248,7 +264,11 @@
             const unsatisfiedModalContent = document.getElementById('unsatisfiedModalContent');
             const closeUnsatisfiedModal = document.getElementById('closeUnsatisfiedModal');
             const imageModal = document.getElementById('imageModal');
+            const imageModalContent = document.getElementById('imageModalContent');
             const closeImageModal = document.getElementById('closeImageModal');
+            const heartModal = document.getElementById('heartModal');
+            const heartModalContent = document.getElementById('heartModalContent');
+            const closeHeartModal = document.getElementById('closeHeartModal');
             const secondClickModal = document.getElementById('secondClickModal');
             const secondClickModalContent = document.getElementById('secondClickModalContent');
             const closeSecondClickModal = document.getElementById('closeSecondClickModal');
@@ -258,6 +278,7 @@
             
             let noClicks = 0; // 记录点击"你别管"的次数
             let yesClicks = 0; // 记录点击"想你"的次数
+            let showHeartModal = false; // 控制比心弹窗和图片弹窗的交替显示
             
             // 点击"你别管"按钮
             noBtn.addEventListener('click', function() {
@@ -382,6 +403,23 @@
                         thirdClickModalContent.classList.remove('scale-95', 'opacity-0');
                         thirdClickModalContent.classList.add('scale-100', 'opacity-100');
                     }, 10);
+                } else {
+                    // 第四次及以后点击：交替显示比心弹窗和图片弹窗
+                    showHeartModal = !showHeartModal;
+                    
+                    if (showHeartModal) {
+                        heartModal.classList.remove('hidden');
+                        setTimeout(() => {
+                            heartModalContent.classList.remove('scale-95', 'opacity-0');
+                            heartModalContent.classList.add('scale-100', 'opacity-100');
+                        }, 10);
+                    } else {
+                        imageModal.classList.remove('hidden');
+                        setTimeout(() => {
+                            imageModalContent.classList.remove('scale-95', 'opacity-0');
+                            imageModalContent.classList.add('scale-100', 'opacity-100');
+                        }, 10);
+                    }
                 }
             });
             
@@ -395,12 +433,31 @@
                     successModal.classList.add('hidden');
                     // 显示图片弹窗
                     imageModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        imageModalContent.classList.remove('scale-95', 'opacity-0');
+                        imageModalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
                 }, 300);
             });
             
             // 关闭图片弹窗
             closeImageModal.addEventListener('click', function() {
-                imageModal.classList.add('hidden');
+                imageModalContent.classList.remove('scale-100', 'opacity-100');
+                imageModalContent.classList.add('scale-95', 'opacity-0');
+                
+                setTimeout(() => {
+                    imageModal.classList.add('hidden');
+                }, 300);
+            });
+            
+            // 关闭比心弹窗
+            closeHeartModal.addEventListener('click', function() {
+                heartModalContent.classList.remove('scale-100', 'opacity-100');
+                heartModalContent.classList.add('scale-95', 'opacity-0');
+                
+                setTimeout(() => {
+                    heartModal.classList.add('hidden');
+                }, 300);
             });
             
             // 关闭阻止返回弹窗
